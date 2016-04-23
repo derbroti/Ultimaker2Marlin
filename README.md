@@ -233,17 +233,16 @@ Custom M Codes
 Configuring and compilation:
 ============================
 
-Install the arduino software IDE (latest - this one is build upon 1.6.5 (https://github.com/arduino/Arduino/releases/tag/1.6.5) not the prebuild one (1.6.5-rc5))
-   http://www.arduino.cc/en/Main/Software
+Install/build the Arduino IDE (latest - this one is build upon 1.6.5 (https://github.com/arduino/Arduino/releases/tag/1.6.5) not the prebuild one (1.6.5-rc5))
 
-Start the arduino IDE.
-Select Tools -> Board -> Arduino Mega 2560    or your microcontroller
-Select the correct serial port in Tools ->Serial Port
-Open Marlin.pde
+Start the Arduino IDE.
+Select Tools -> Board -> Arduino Mega 2560
+Select the correct serial port in Tools -> Serial Port
+Open Marlin.ino
 
 Click the Verify/Compile button
 
-Click the Upload button
+Click the Upload button (preferably use the provided package.sh script and upload the generated firmware via Cura)
 If all goes well the firmware is uploading
 
 That's ok.  Enjoy Silky Smooth Printing.
