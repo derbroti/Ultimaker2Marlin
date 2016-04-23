@@ -1,8 +1,4 @@
-* Download the latest version from the <a href="https://github.com/TinkerGnome/Ultimaker2Marlin/releases">Release page</a>
-* Description <a href="http://umforum.ultimaker.com/index.php?/topic/10474-tinker-firmware/">en français</a>
-
-
-### Changelist for this fork:
+### Changelist for this fork (by tinkergnome):
 
 * new branch geek_mode
 * (re-)activated PID-controlling for the printbed temperature
@@ -14,12 +10,9 @@
 For more information follow the appropriate discussion on the [Ultimaker forum](http://umforum.ultimaker.com/index.php?/topic/6436-more-information-during-print/page-2#entry84729)
 
 
-
 ==========================
 Marlin 3D Printer Firmware
 ==========================
-
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/ErikZalm/Marlin&title=Marlin&language=&tags=github&category=software)
 
 Quick Information
 ===================
@@ -240,15 +233,8 @@ Custom M Codes
 Configuring and compilation:
 ============================
 
-Install the arduino software IDE/toolset v23 (Some configurations also work with 1.x.x)
+Install the arduino software IDE (latest - this one is build upon 1.6.5 (https://github.com/arduino/Arduino/releases/tag/1.6.5) not the prebuild one (1.6.5-rc5))
    http://www.arduino.cc/en/Main/Software
-
-For gen6/gen7 and sanguinololu the Sanguino directory in the Marlin dir needs to be copied to the arduino environment.
-  copy ArduinoAddons\Arduino_x.x.x\sanguino <arduino home>\hardware\Sanguino
-
-Copy the Marlin firmware
-   https://github.com/ErikZalm/Marlin/tree/Marlin_v1
-   (Use the download button)
 
 Start the arduino IDE.
 Select Tools -> Board -> Arduino Mega 2560    or your microcontroller
