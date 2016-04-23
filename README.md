@@ -1,4 +1,4 @@
-### Changelist for this fork (by tinkergnome):
+### Changelist for the parent-fork (by tinkergnome):
 
 * new branch geek_mode
 * (re-)activated PID-controlling for the printbed temperature
