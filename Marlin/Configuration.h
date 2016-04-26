@@ -10,7 +10,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
+#define STRING_VERSION_CONFIG_H "Apr  8 2016 20:13:17" // build date and time
 #ifndef STRING_CONFIG_H_AUTHOR
 #define STRING_CONFIG_H_AUTHOR "Tinker_16.03-DEV" // Who made the changes.
 #endif
@@ -22,41 +22,8 @@
 
 // This determines the communication speed of the printer
 #define BAUDRATE 250000
-//#define BAUDRATE 115200
 
-//// The following define selects which electronics board you have. Please choose the one that matches your setup
-// 10 = Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
-// 11 = Gen7 v1.1, v1.2 = 11
-// 12 = Gen7 v1.3
-// 13 = Gen7 v1.4
-// 3  = MEGA/RAMPS up to 1.2 = 3
-// 33 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Bed)
-// 34 = RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
-// 4  = Duemilanove w/ ATMega328P pin assignment
-// 5  = Gen6
-// 51 = Gen6 deluxe
-// 6  = Sanguinololu < 1.2
-// 62 = Sanguinololu 1.2 and above
-// 63 = Melzi
-// 64 = STB V1.1
-// 65 = Azteeg X1
-// 7  = Ultimaker
-// 71 = Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 // 72 = Ultiboard v2.0 (includes Ultimaker 2)
-// 77 = 3Drag Controller
-// 8  = Teensylu
-// 80 = Rumba
-// 81 = Printrboard (AT90USB1286)
-// 82 = Brainwave (AT90USB646)
-// 9  = Gen3+
-// 70 = Megatronics
-// 701= Megatronics v2.0
-// 702= Minitronics v1.0
-// 90 = Alpha OMCA board
-// 91 = Final OMCA board
-// 301 = Rambo
-// 21 = Elefu Ra Board (v3)
-
 #ifndef MOTHERBOARD
 #define MOTHERBOARD 72
 #endif
@@ -74,43 +41,6 @@
 // 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
 
 #define POWER_SUPPLY 2
-
-
-//===========================================================================
-//============================== Delta Settings =============================
-//===========================================================================
-// Enable DELTA kinematics
-//#define DELTA
-
-// Make delta curves from many straight lines (linear interpolation).
-// This is a trade-off between visible corners (not enough segments)
-// and processor overload (too many expensive sqrt calls).
-#define DELTA_SEGMENTS_PER_SECOND 200
-
-// Center-to-center distance of the holes in the diagonal push rods.
-#define DELTA_DIAGONAL_ROD 250.0 // mm
-
-// Horizontal offset from middle of printer to smooth rod center.
-#define DELTA_SMOOTH_ROD_OFFSET 175.0 // mm
-
-// Horizontal offset of the universal joints on the end effector.
-#define DELTA_EFFECTOR_OFFSET 33.0 // mm
-
-// Horizontal offset of the universal joints on the carriages.
-#define DELTA_CARRIAGE_OFFSET 18.0 // mm
-
-// Effective horizontal distance bridged by diagonal push rods.
-#define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
-
-// Effective X/Y positions of the three vertical towers.
-#define SIN_60 0.8660254037844386
-#define COS_60 0.5
-#define DELTA_TOWER1_X -SIN_60*DELTA_RADIUS // front left tower
-#define DELTA_TOWER1_Y -COS_60*DELTA_RADIUS
-#define DELTA_TOWER2_X SIN_60*DELTA_RADIUS // front right tower
-#define DELTA_TOWER2_Y -COS_60*DELTA_RADIUS
-#define DELTA_TOWER3_X 0.0 // back middle tower
-#define DELTA_TOWER3_Y DELTA_RADIUS
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -213,25 +143,10 @@
   #define PID_dT ((OVERSAMPLENR * 4.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
 // If you are using a preconfigured hotend then you can use one of the value sets by uncommenting it
-// Ultimaker
-    //#define  DEFAULT_Kp 22.2
-    //#define  DEFAULT_Ki 1.08
-    //#define  DEFAULT_Kd 114
-
 // Ultimaker2
     #define  DEFAULT_Kp 10.0
     #define  DEFAULT_Ki 2.5
     #define  DEFAULT_Kd 100.0
-
-// Makergear
-//    #define  DEFAULT_Kp 7.0
-//    #define  DEFAULT_Ki 0.1
-//    #define  DEFAULT_Kd 12
-
-// Mendel Parts V9 on 12V
-//    #define  DEFAULT_Kp 63.0
-//    #define  DEFAULT_Ki 2.25
-//    #define  DEFAULT_Kd 440
 #endif // PIDTEMP
 
 // Bed Temperature Control
@@ -255,18 +170,6 @@
 #define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
 
 #ifdef PIDTEMPBED
-//120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-//from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-//    #define  DEFAULT_bedKp 50.00
-//    #define  DEFAULT_bedKi .023
-//    #define  DEFAULT_bedKd 305.4
-
-//120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-//from pidautotune
-//    #define  DEFAULT_bedKp 97.1
-//    #define  DEFAULT_bedKi 1.41
-//    #define  DEFAULT_bedKd 1675.16
-
 //Ultimaker2
     #define  DEFAULT_bedKp 124.55
     #define  DEFAULT_bedKi 23.46
@@ -380,7 +283,6 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 // The position of the homing switches
 //#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
-//#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
 //Manual homing switch locations:
 // For deltabots this means top and center of the cartesian print volume.
@@ -441,129 +343,8 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define ABS_PREHEAT_FAN_SPEED 0     // Insert Value between 0 and 255
 
 //LCD and SD support
-//#define ULTRA_LCD  //general lcd support, also 16x2
-//#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
-//#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
-
-//#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
-//#define ULTIBOARD_V2_CONTROLLER //128x64 pixel Ultimaker OLED LCD panel
 #define ENABLE_ULTILCD2 //128x64 pixel display in the Ultimaker 2, with new menus. Note: For compiling with Arduino you need to remove the "SIGNAL(TWI_vect)" function from "libraries/Wire/utility/twi.c"
-//#define ULTIPANEL  //the ultipanel as on thingiverse
-
-// The RepRapDiscount Smart Controller (white PCB)
-// http://reprap.org/wiki/RepRapDiscount_Smart_Controller
-//#define REPRAP_DISCOUNT_SMART_CONTROLLER
-
-// The GADGETS3D G3D LCD/SD Controller (blue PCB)
-// http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
-//#define G3D_PANEL
-
-// The RepRapDiscount FULL GRAPHIC Smart Controller (quadratic white PCB)
-// http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
-//
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-
-// The RepRapWorld REPRAPWORLD_KEYPAD v1.1
-// http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
-//#define REPRAPWORLD_KEYPAD
-//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // how much should be moved when a key is pressed, eg 10.0 means 10mm per click
-
-// The Elefu RA Board Control Panel
-// http://www.elefu.com/index.php?route=product/product&product_id=53
-// REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARUDINO library folder: https://github.com/kiyoshigawa/LiquidCrystal_I2C
-//#define RA_CONTROL_PANEL
-
-//automatic expansion
-#if defined (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
- #define DOGLCD
- #define U8GLIB_ST7920
- #define REPRAP_DISCOUNT_SMART_CONTROLLER
-#endif
-
-#if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL) || defined(ULTIBOARD_V2_CONTROLLER)
- #define ULTIPANEL
- #define NEWPANEL
-#endif
-
-#if defined(REPRAPWORLD_KEYPAD)
-  #define NEWPANEL
-  #define ULTIPANEL
-#endif
-#if defined(RA_CONTROL_PANEL)
- #define ULTIPANEL
- #define NEWPANEL
- #define LCD_I2C_TYPE_PCA8574
- #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
-#endif
-
-//I2C PANELS
-
-//#define LCD_I2C_SAINSMART_YWROBOT
-#ifdef LCD_I2C_SAINSMART_YWROBOT
-  // This uses the LiquidCrystal_I2C library ( https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home )
-  // Make sure it is placed in the Arduino libraries directory.
-  #define LCD_I2C_TYPE_PCF8575
-  #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
-  #define NEWPANEL
-  #define ULTIPANEL
-#endif
-
-// PANELOLU2 LCD with status LEDs, separate encoder and click inputs
-//#define LCD_I2C_PANELOLU2
-#ifdef LCD_I2C_PANELOLU2
-  // This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
-  // Make sure the LiquidTWI2 directory is placed in the Arduino or Sketchbook libraries subdirectory.
-  // (v1.2.3 no longer requires you to define PANELOLU in the LiquidTWI2.h library header file)
-  // Note: The PANELOLU2 encoder click input can either be directly connected to a pin
-  //       (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1).
-  #define LCD_I2C_TYPE_MCP23017
-  #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
-  #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
-  #define NEWPANEL
-  #define ULTIPANEL
-#endif
-
-// Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
-//#define LCD_I2C_VIKI
-#ifdef LCD_I2C_VIKI
-  // This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
-  // Make sure the LiquidTWI2 directory is placed in the Arduino or Sketchbook libraries subdirectory.
-  // Note: The pause/stop/resume LCD button pin should be connected to the Arduino
-  //       BTN_ENC pin (or set BTN_ENC to -1 if not used)
-  #define LCD_I2C_TYPE_MCP23017
-  #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
-  #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
-  #define NEWPANEL
-  #define ULTIPANEL
-#endif
-
-#ifdef ULTIPANEL
-//  #define NEWPANEL  //enable this if you have a click-encoder panel
-  #define SDSUPPORT
-  #define ULTRA_LCD
-  #ifdef DOGLCD // Change number of lines to match the DOG graphic display
-    #define LCD_WIDTH 20
-    #define LCD_HEIGHT 5
-  #elif defined(ULTIBOARD_V2_CONTROLLER)
-    #define LCD_WIDTH 21
-    #define LCD_HEIGHT 8
-  #else
-    #define LCD_WIDTH 20
-    #define LCD_HEIGHT 4
-  #endif
-#else //no panel but just lcd
-  #ifdef ULTRA_LCD
-  #ifdef DOGLCD // Change number of lines to match the 128x64 graphics display
-    #define LCD_WIDTH 20
-    #define LCD_HEIGHT 5
-  #else
-    #define LCD_WIDTH 16
-    #define LCD_HEIGHT 2
-  #endif
-  #endif
-#endif
 
 // Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
 //#define FAST_PWM_FAN
@@ -586,8 +367,6 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // SF send wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
 
-// Support for the BariCUDA Paste Extruder.
-//#define BARICUDA
 
 /*********************************************************************\
 * R/C SERVO support

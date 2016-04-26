@@ -19,19 +19,6 @@
 * Implementation of the LCD display routines for a DOGM128 graphic display. These are common LCD 128x64 pixel graphic displays.
 **/
 
-#ifdef ULTIPANEL
-#define BLEN_A 0
-#define BLEN_B 1
-#define BLEN_C 2
-#define EN_A (1<<BLEN_A)
-#define EN_B (1<<BLEN_B)
-#define EN_C (1<<BLEN_C)
-#define encrot0 0
-#define encrot1 2
-#define encrot2 3
-#define encrot3 1
-#define LCD_CLICKED (buttons&EN_C)
-#endif
 
 #include <U8glib.h>
 #include "DOGMbitmaps.h"
@@ -42,14 +29,7 @@
 
 /* Russian language not supported yet, needs custom font
 
-#if LANGUAGE_CHOICE == 6
-#include "LiquidCrystalRus.h"
-#define LCD_CLASS LiquidCrystalRus
-#else
-#include <LiquidCrystal.h>
-#define LCD_CLASS LiquidCrystal
-#endif
-*/
+
 
 // DOGM parameters (size in pixels)
 #define DOG_CHAR_WIDTH			6
@@ -167,7 +147,7 @@ static void lcd_implementation_status_screen()
  if ((blink % 2) &&  fanSpeed )	u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT,status_screen0_bmp);
 	else u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT,status_screen1_bmp);
 
- #ifdef SDSUPPORT
+
  //SD Card Symbol
  u8g.drawBox(42,42,8,7);
  u8g.drawBox(50,44,2,5);
@@ -199,7 +179,6 @@ static void lcd_implementation_status_screen()
     }else{
 			lcd_printPGM(PSTR("--:--"));
 		 }
- #endif
 
  // Extruder 1
  u8g.setFont(FONT_STATUSMENU);

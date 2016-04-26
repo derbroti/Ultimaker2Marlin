@@ -31,9 +31,6 @@
 #include "lifetime_stats.h"
 #include "cardreader.h"
 #include "speed_lookuptable.h"
-#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
-#include <SPI.h>
-#endif
 
 
 //===========================================================================

@@ -21,18 +21,6 @@ else
 fi
 
 
-# Change working directory to the directory the script is in
-# http://stackoverflow.com/a/246128
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR"
-
-# #For building under MacOS we need gnutar instead of tar
-# if [ -z `which gnutar` ]; then
-# 	TAR=tar
-# else
-# 	TAR=gnutar
-# fi
-
 #############################
 # Build the required firmwares
 #############################
@@ -53,10 +41,6 @@ fi
 
 
 #Build the Ultimaker2 firmwares.
-# gitClone https://github.com/TinkerGnome/Ultimaker2Marlin.git _Ultimaker2Marlin
-# cd _Ultimaker2Marlin/Marlin
-
-# USE_CHANGE_TEMPERATURE
 
 $MAKE -j 3 HARDWARE_MOTHERBOARD=72 ARDUINO_INSTALL_DIR=${ARDUINO_PATH} ARDUINO_VERSION=${ARDUINO_VERSION} BUILD_DIR=_Ultimaker2 clean
 sleep 2

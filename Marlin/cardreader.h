@@ -1,20 +1,9 @@
 #ifndef CARDREADER_H
 #define CARDREADER_H
 
-#ifdef SDSUPPORT
-
 #define MAX_DIR_DEPTH 10
-
-#if (SDCARDDETECT > -1)
-# ifdef SDCARDDETECTINVERTED
-#  define IS_SD_INSERTED (READ(SDCARDDETECT)!=0)
-# else
-#  define IS_SD_INSERTED (READ(SDCARDDETECT)==0)
-# endif //SDCARDTETECTINVERTED
-#else
-//If we don't have a card detect line, aways asume the card is inserted
-# define IS_SD_INSERTED true
-#endif
+#define IS_SD_INSERTED (READ(SDCARDDETECT)==0)
+#define IS_SD_PRINTING (card.sdprinting)
 
 #include "Sd2CardExt.h"
 #include "SdFileExt.h"
@@ -110,11 +99,5 @@ private:
   void lsDive(SdFileExt &parent, SdFileExt** parents, uint8_t dirDepth);
 };
 extern CardReader card;
-#define IS_SD_PRINTING (card.sdprinting)
 
-#else
-
-#define IS_SD_PRINTING (false)
-
-#endif //SDSUPPORT
 #endif

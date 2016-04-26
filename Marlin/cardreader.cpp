@@ -6,8 +6,6 @@
 #include "temperature.h"
 #include "language.h"
 
-#ifdef SDSUPPORT
-
 CardReader::CardReader() :
    saving(false)
  , logging(false)
@@ -26,12 +24,6 @@ CardReader::CardReader() :
 {
 
    // memset(workDirParents, 0, sizeof(workDirParents));
-
-  //power to SD reader
-  #if SDPOWER > -1
-    SET_OUTPUT(SDPOWER);
-    WRITE(SDPOWER,HIGH);
-  #endif //SDPOWER
 
   autostart_atmillis=millis()+5000;
 }
@@ -288,9 +280,6 @@ void CardReader::openFile(const char* name,bool read)
       sdpos = 0;
 
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
-#ifndef ENABLE_ULTILCD2
-       lcd_setstatus(fname);
-#endif
     }
     else
     {
@@ -312,9 +301,6 @@ void CardReader::openFile(const char* name,bool read)
       saving = true;
       SERIAL_PROTOCOLPGM(MSG_SD_WRITE_TO_FILE);
       SERIAL_PROTOCOLLN(name);
-#ifndef ENABLE_ULTILCD2
-      lcd_setstatus(fname);
-#endif
     }
   }
 }
@@ -559,4 +545,3 @@ void CardReader::printingHasFinished()
     autotempShutdown();
     // card.reset();
 }
-#endif //SDSUPPORT

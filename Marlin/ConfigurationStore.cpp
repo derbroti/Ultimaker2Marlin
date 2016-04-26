@@ -60,10 +60,10 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,max_z_jerk);
   EEPROM_WRITE_VAR(i,max_e_jerk);
   EEPROM_WRITE_VAR(i,add_homeing);
-  #ifndef ULTIPANEL
+
   int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
   int absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP, absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP, absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
-  #endif
+
   EEPROM_WRITE_VAR(i,plaPreheatHotendTemp);
   EEPROM_WRITE_VAR(i,plaPreheatHPBTemp);
   EEPROM_WRITE_VAR(i,plaPreheatFanSpeed);
@@ -82,14 +82,10 @@ void Config_StoreSettings()
     EEPROM_WRITE_VAR(i,dummy);
   #endif
   EEPROM_WRITE_VAR(i,motor_current_setting);
-  #ifdef ENABLE_ULTILCD2
+
   EEPROM_WRITE_VAR(i,led_brightness_level);
   EEPROM_WRITE_VAR(i,led_mode);
-  #else
-  uint8_t dummyByte=0;
-  EEPROM_WRITE_VAR(i,dummyByte);
-  EEPROM_WRITE_VAR(i,dummyByte);
-  #endif
+  
   EEPROM_WRITE_VAR(i,retract_length);
   EEPROM_WRITE_VAR(i,retract_feedrate);
   char ver2[4]=EEPROM_VERSION;
@@ -101,7 +97,6 @@ void Config_StoreSettings()
 #endif //EEPROM_SETTINGS
 
 
-#ifdef EEPROM_CHITCHAT
 void Config_PrintSettings()
 {  // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
     SERIAL_ECHO_START;
@@ -165,10 +160,8 @@ void Config_PrintSettings()
     SERIAL_EOL;
 #endif
 }
-#endif
 
 
-#ifdef EEPROM_SETTINGS
 void Config_RetrieveSettings()
 {
     int i=EEPROM_OFFSET;
@@ -240,7 +233,6 @@ void Config_RetrieveSettings()
     }
     Config_PrintSettings();
 }
-#endif
 
 void Config_ResetDefault()
 {
@@ -266,14 +258,7 @@ void Config_ResetDefault()
     max_z_jerk=DEFAULT_ZJERK;
     max_e_jerk=DEFAULT_EJERK;
     add_homeing[0] = add_homeing[1] = add_homeing[2] = 0;
-#ifdef ULTIPANEL
-    plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;
-    plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP;
-    plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
-    absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP;
-    absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
-    absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
-#endif
+
 #ifdef PIDTEMP
     Kp = DEFAULT_Kp;
     Ki = scalePID_i(DEFAULT_Ki);
@@ -291,10 +276,9 @@ void Config_ResetDefault()
     motor_current_setting[1] = tmp_motor_current_setting[1];
     motor_current_setting[2] = tmp_motor_current_setting[2];
 
-    #ifdef ENABLE_ULTILCD2
     led_brightness_level = 100;
     led_mode = LED_MODE_ALWAYS_ON;
-    #endif
+
     retract_length = 4.5;
     retract_feedrate = 25 * 60;
 

@@ -103,32 +103,16 @@
 #else //Set min/max homing switch positions based upon homing direction and min/max travel limits
   //X axis
   #if X_HOME_DIR == -1
-    #ifdef BED_CENTER_AT_0_0
-      #define X_HOME_POS X_MAX_LENGTH * -0.5
-    #else
       #define X_HOME_POS X_MIN_POS
-    #endif //BED_CENTER_AT_0_0
   #else
-    #ifdef BED_CENTER_AT_0_0
-      #define X_HOME_POS X_MAX_LENGTH * 0.5
-    #else
       #define X_HOME_POS X_MAX_POS
-    #endif //BED_CENTER_AT_0_0
   #endif //X_HOME_DIR == -1
 
   //Y axis
   #if Y_HOME_DIR == -1
-    #ifdef BED_CENTER_AT_0_0
-      #define Y_HOME_POS Y_MAX_LENGTH * -0.5
-    #else
       #define Y_HOME_POS Y_MIN_POS
-    #endif //BED_CENTER_AT_0_0
   #else
-    #ifdef BED_CENTER_AT_0_0
-      #define Y_HOME_POS Y_MAX_LENGTH * 0.5
-    #else
       #define Y_HOME_POS Y_MAX_POS
-    #endif //BED_CENTER_AT_0_0
   #endif //Y_HOME_DIR == -1
 
   // Z axis
@@ -274,15 +258,6 @@
 
 const int8_t dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 
-// If you are using a RAMPS board or cheap E-bay purchased boards that do not detect when an SD card is inserted
-// You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT
-// in the pins.h file.  When using a push button pulling the pin to ground this will need inverted.  This setting should
-// be commented out otherwise
-#define SDCARDDETECTINVERTED
-
-#if defined(ULTIPANEL) || defined(ENABLE_ULTILCD2)
- #undef SDCARDDETECTINVERTED
-#endif
 
 // Power Signal Control Definitions
 // By default use ATX definition
@@ -363,9 +338,6 @@ const int8_t dropsegments=5; //everything with less than this number of steps wi
   #define THERMISTORBED TEMP_SENSOR_BED
   #define BED_USES_THERMISTOR
 #endif
-#if TEMP_SENSOR_0 == -1
-  #define HEATER_0_USES_AD595
-#endif
 #if TEMP_SENSOR_1 == -1
   #define HEATER_1_USES_AD595
 #endif
@@ -375,9 +347,7 @@ const int8_t dropsegments=5; //everything with less than this number of steps wi
 #if TEMP_SENSOR_BED == -1
   #define BED_USES_AD595
 #endif
-#if TEMP_SENSOR_0 == -2
-  #define HEATER_0_USES_MAX6675
-#endif
+
 #if TEMP_SENSOR_0 == 0
   #undef HEATER_0_MINTEMP
   #undef HEATER_0_MAXTEMP

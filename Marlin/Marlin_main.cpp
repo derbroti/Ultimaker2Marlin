@@ -51,10 +51,6 @@
 #include "Servo.h"
 #endif
 
-#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
-#include <SPI.h>
-#endif
-
 #define VERSION_STRING  "1.0.0"
 
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
@@ -450,11 +446,11 @@ void setup()
     #ifdef STRING_CONFIG_H_AUTHOR
       SERIAL_ECHO_START;
       SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
-      SERIAL_ECHOPGM(STRING_VERSION_CONFIG_H);
+      SERIAL_ECHOPGM("Apr  8 2016 20:13:08");
       SERIAL_ECHOPGM(MSG_AUTHOR);
       SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
       SERIAL_ECHOPGM("Compiled: ");
-      SERIAL_ECHOLNPGM(__DATE__);
+      SERIAL_ECHOLNPGM("Apr  8 2016");
     #endif
   #endif
   SERIAL_ECHO_START;
@@ -477,9 +473,6 @@ void setup()
 
   lcd_init();
 
-  #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
-    SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
-  #endif
 }
 
 void loop()
@@ -489,12 +482,11 @@ void loop()
     get_command();
   }
 
-  #ifdef SDSUPPORT
+
   card.checkautostart(false);
-  #endif
+
   if(buflen)
   {
-    #ifdef SDSUPPORT
       if(card.saving)
       {
         if(strstr_P(cmdbuffer[bufindr], PSTR("M29")) == NULL)
@@ -521,10 +513,6 @@ void loop()
         process_command(cmdbuffer[bufindr]);
         serialCmd &= ~(1 << bufindr);
       }
-    #else
-      process_command(cmdbuffer[bufindr]);
-      serialCmd &= ~(1 << bufindr);
-    #endif //SDSUPPORT
     if (buflen > 0)
     {
       --buflen;
@@ -627,10 +615,8 @@ static void get_command()
           case 2:
           case 3:
             if(Stopped == false) { // If printer is stopped by an error the G[0-3] codes are ignored.
-          #ifdef SDSUPPORT
               if(card.saving)
                 break;
-          #endif //SDSUPPORT
               SERIAL_PROTOCOLLNPGM(MSG_OK);
             }
             else {
@@ -643,9 +629,9 @@ static void get_command()
           }
 
         }
-#ifdef ENABLE_ULTILCD2
+
         if (!code_seen(cmdbuffer[bufindw], 'M') || (code_value_long() != 105))
-#endif
+
         {
             //set serial flag for new command
             serialCmd |= (1 << bufindw);
@@ -664,7 +650,7 @@ static void get_command()
       if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
   }
-  #ifdef SDSUPPORT
+
   if (card.eof())
   {
     card.sdprinting = false;
@@ -749,9 +735,6 @@ static void get_command()
       if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
   }
-
-  #endif //SDSUPPORT
-
 }
 
 #define DEFINE_PGM_READ_ANY(type, reader)       \
@@ -776,9 +759,7 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 
 static void axis_is_at_home(int axis) {
     float baseHomePos;
-#ifdef BED_CENTER_AT_0_0
-    float maxLength = max_pos[axis] - min_pos[axis];
-#endif
+
     if (axis == Z_AXIS)
     {
         if (home_dir(axis) == -1)
@@ -794,19 +775,12 @@ static void axis_is_at_home(int axis) {
     {
         if (home_dir(axis) == -1)
         {
-            #ifdef BED_CENTER_AT_0_0
-                baseHomePos = maxLength * -0.5;
-            #else
-                baseHomePos = min_pos[axis];
-            #endif
+            baseHomePos = min_pos[axis];
+
         }
         else
         {
-            #ifdef BED_CENTER_AT_0_0
-                baseHomePos = maxLength * 0.5;
-            #else
-                baseHomePos = max_pos[axis];
-            #endif
+            baseHomePos = max_pos[axis];
         }
     }
 
@@ -1106,37 +1080,7 @@ void process_command(const char *strCmd)
       }
           feedrate = 0.0;
 
-#ifdef DELTA
-          // A delta can only safely home all axis at the same time
-          // all axis have to home at the same time
 
-          // Move all carriages up together until the first endstop is hit.
-          current_position[X_AXIS] = 0;
-          current_position[Y_AXIS] = 0;
-          current_position[Z_AXIS] = 0;
-          plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
-          destination[X_AXIS] = 3 * AXIS_LENGTH(Z_AXIS);
-          destination[Y_AXIS] = 3 * AXIS_LENGTH(Z_AXIS);
-          destination[Z_AXIS] = 3 * AXIS_LENGTH(Z_AXIS);
-          feedrate = 1.732 * homing_feedrate[X_AXIS];
-          plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
-          st_synchronize();
-          endstops_hit_on_purpose();
-
-          current_position[X_AXIS] = destination[X_AXIS];
-          current_position[Y_AXIS] = destination[Y_AXIS];
-          current_position[Z_AXIS] = destination[Z_AXIS];
-
-          // take care of back off and rehome now we are all at the top
-          HOMEAXIS(X);
-          HOMEAXIS(Y);
-          HOMEAXIS(Z);
-
-          calculate_delta(current_position);
-          plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-
-#else // NOT DELTA
 
           home_all_axis = !((code_seen(strCmd, axis_codes[0])) || (code_seen(strCmd, axis_codes[1])) || (code_seen(strCmd, axis_codes[2])));
 
@@ -1241,7 +1185,6 @@ void process_command(const char *strCmd)
         }
       }
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-#endif // DELTA
 
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -1283,40 +1226,7 @@ void process_command(const char *strCmd)
   {
     switch( (int)code_value() )
     {
-#ifdef ULTIPANEL
-    case 0: // M0 - Unconditional stop - Wait for user button press on LCD
-    case 1: // M1 - Conditional stop - Wait for user button press on LCD
-    {
-      if (printing_state == PRINT_STATE_RECOVER)
-        break;
 
-      printing_state = PRINT_STATE_WAIT_USER;
-      LCD_MESSAGEPGM(MSG_USERWAIT);
-
-      serial_action_P(PSTR("pause"));
-
-      codenum = 0;
-      if(code_seen(strCmd, 'P')) codenum = code_value(); // milliseconds to wait
-      if(code_seen(strCmd, 'S')) codenum = code_value() * 1000; // seconds to wait
-
-      st_synchronize();
-      previous_millis_cmd = millis();
-      if (codenum > 0){
-        codenum += millis();  // keep track of when we started waiting
-        while(millis()  < codenum && !lcd_clicked()){
-          idle();
-        }
-      }else{
-        while(!lcd_clicked()){
-          idle();
-        }
-      }
-      serial_action_P(PSTR("resume"));
-      LCD_MESSAGEPGM(MSG_RESUMING);
-    }
-    break;
-#endif
-#ifdef ENABLE_ULTILCD2
     case 0: // M0 - Unconditional stop - Wait for user button press on LCD
     case 1: // M1 - Conditional stop - Wait for user button press on LCD
     {
@@ -1332,7 +1242,7 @@ void process_command(const char *strCmd)
         serial_action_P(PSTR("resume"));
     }
     break;
-#endif
+
     case 17:
         if (printing_state == PRINT_STATE_RECOVER)
           break;
@@ -1345,7 +1255,7 @@ void process_command(const char *strCmd)
         enable_e2();
       break;
 
-#ifdef SDSUPPORT
+
     case 20: // M20 - list SD card
       if (printing_state == PRINT_STATE_RECOVER)
         break;
@@ -1439,8 +1349,6 @@ void process_command(const char *strCmd)
       }
       card.openLogFile(strchr_pointer+5);
       break;
-
-#endif //SDSUPPORT
 
     case 31: //M31 take time since the start of the SD print or an M109 command
       {
@@ -1631,7 +1539,7 @@ void process_command(const char *strCmd)
     #endif
         break;
 
-    #if defined(FAN_PIN) && FAN_PIN > -1
+
       case 106: //M106 Fan On
         if (code_seen(strCmd, 'S')){
            fanSpeed=constrain((int)code_value() * fanSpeedPercent / 100, 0, 255);
@@ -1643,46 +1551,6 @@ void process_command(const char *strCmd)
       case 107: //M107 Fan Off
         fanSpeed = 0;
         break;
-    #endif //FAN_PIN
-    #ifdef BARICUDA
-      // PWM for HEATER_1_PIN
-      #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1
-        case 126: //M126 valve open
-          if (printing_state == PRINT_STATE_RECOVER)
-            break;
-          if (code_seen(strCmd, 'S')){
-             ValvePressure=constrain((int)code_value(),0,255);
-          }
-          else {
-            ValvePressure=255;
-          }
-          break;
-        case 127: //M127 valve closed
-          if (printing_state == PRINT_STATE_RECOVER)
-            break;
-          ValvePressure = 0;
-          break;
-      #endif //HEATER_1_PIN
-
-      // PWM for HEATER_2_PIN
-      #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1
-        case 128: //M128 valve open
-          if (printing_state == PRINT_STATE_RECOVER)
-            break;
-          if (code_seen(strCmd, 'S')){
-             EtoPPressure=constrain((int)code_value(),0,255);
-          }
-          else {
-            EtoPPressure=255;
-          }
-          break;
-        case 129: //M129 valve closed
-          if (printing_state == PRINT_STATE_RECOVER)
-            break;
-          EtoPPressure = 0;
-          break;
-      #endif //HEATER_2_PIN
-    #endif
 
     #if defined(PS_ON_PIN) && PS_ON_PIN > -1
       case 80: // M80 - ATX Power On
@@ -1891,13 +1759,7 @@ void process_command(const char *strCmd)
       // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
       reset_acceleration_rates();
       break;
-    #if 0 // Not used for Sprinter/grbl gen6
-    case 202: // M202
-      for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(strCmd, axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * axis_steps_per_unit[i];
-      }
-      break;
-    #endif
+
     case 203: // M203 max feedrate mm/sec
       for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(strCmd, axis_codes[i])) max_feedrate[i] = code_value();
@@ -2044,29 +1906,6 @@ void process_command(const char *strCmd)
       }
       break;
     #endif // NUM_SERVOS > 0
-
-    #if LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD) )
-    case 300: // M300
-    {
-      int beepS = code_seen(strCmd, 'S') ? code_value() : 110;
-      int beepP = code_seen(strCmd, 'P') ? code_value() : 1000;
-      if (beepS > 0)
-      {
-        #if BEEPER > 0
-          tone(BEEPER, beepS);
-          delay(beepP);
-          noTone(BEEPER);
-        #elif defined(ULTRALCD)
-          lcd_buzz(beepS, beepP);
-        #endif
-      }
-      else
-      {
-        delay(beepP);
-      }
-    }
-    break;
-    #endif // M300
 
     #ifdef PIDTEMP
     case 301: // M301
@@ -2303,16 +2142,12 @@ void process_command(const char *strCmd)
           idle();
           if(cnt==0)
           {
-          #if BEEPER > 0
             SET_OUTPUT(BEEPER);
 
             WRITE(BEEPER,HIGH);
             delay(3);
             WRITE(BEEPER,LOW);
             delay(3);
-          #else
-            lcd_buzz(1000/6,100);
-          #endif
           }
         }
 
@@ -2336,7 +2171,7 @@ void process_command(const char *strCmd)
     }
     break;
     #endif //FILAMENTCHANGEENABLE
-    #ifdef ENABLE_ULTILCD2
+
     case 601: //M601 Pause in UltiLCD2, X[pos] Y[pos] Z[relative lift] L[later retract distance]
     {
         if (printing_state == PRINT_STATE_RECOVER)
@@ -2454,62 +2289,15 @@ void process_command(const char *strCmd)
       machinesettings.recall(tmp_select);
     }
     break;
-    #endif//ENABLE_ULTILCD2
 
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
-      #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
-        for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_current(i,code_value());
-        if(code_seen(strCmd, 'B')) digipot_current(4,code_value());
-        if(code_seen(strCmd, 'S')) for(int i=0;i<=4;i++) digipot_current(i,code_value());
-      #endif
-      #if defined(MOTOR_CURRENT_PWM_XY_PIN) && MOTOR_CURRENT_PWM_XY_PIN > -1
+      
         if(code_seen(strCmd, 'X')) digipot_current(0, code_value());
-      #endif
-      #if defined(MOTOR_CURRENT_PWM_Z_PIN) && MOTOR_CURRENT_PWM_Z_PIN > -1
+      
         if(code_seen(strCmd, 'Z')) digipot_current(1, code_value());
-      #endif
-      #if defined(MOTOR_CURRENT_PWM_E_PIN) && MOTOR_CURRENT_PWM_E_PIN > -1
+      
         if(code_seen(strCmd, 'E')) digipot_current(2, code_value());
-      #endif
-    }
-    break;
-    case 908: // M908 Control digital trimpot directly.
-    {
-      #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
-        uint8_t channel,current;
-        if(code_seen(strCmd, 'P')) channel=code_value();
-        if(code_seen(strCmd, 'S')) current=code_value();
-        digitalPotWrite(channel, current);
-      #endif
-    }
-    break;
-    case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
-    {
-      #if defined(X_MS1_PIN) && X_MS1_PIN > -1
-        if(code_seen(strCmd, 'S')) for(int i=0;i<=4;i++) microstep_mode(i,code_value());
-        for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_mode(i,(uint8_t)code_value());
-        if(code_seen(strCmd, 'B')) microstep_mode(4,code_value());
-        microstep_readings();
-      #endif
-    }
-    break;
-    case 351: // M351 Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
-    {
-      #if defined(X_MS1_PIN) && X_MS1_PIN > -1
-      if(code_seen(strCmd, 'S')) switch((int)code_value())
-      {
-        case 1:
-          for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_ms(i,code_value(),-1);
-          if(code_seen(strCmd, 'B')) microstep_ms(4,code_value(),-1);
-          break;
-        case 2:
-          for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_ms(i,-1,code_value());
-          if(code_seen(strCmd, 'B')) microstep_ms(4,-1,code_value());
-          break;
-      }
-      microstep_readings();
-      #endif
     }
     break;
     case 999: // M999: Restart after being stopped
@@ -2520,7 +2308,7 @@ void process_command(const char *strCmd)
       gcode_LastN = Stopped_gcode_LastN;
       FlushSerialRequestResend();
     break;
-#ifdef ENABLE_ULTILCD2
+
     case 10000://M10000 - Clear the whole LCD
         if (printing_state == PRINT_STATE_RECOVER)
           break;
@@ -2602,7 +2390,6 @@ void process_command(const char *strCmd)
             return;
         }
         break;
-#endif//ENABLE_ULTILCD2
     }
   }
 
@@ -2806,71 +2593,12 @@ void clamp_to_software_endstops(float target[3])
   }
 }
 
-#ifdef DELTA
-void calculate_delta(float cartesian[3])
-{
-  delta[X_AXIS] = sqrt(sq(DELTA_DIAGONAL_ROD)
-                       - sq(DELTA_TOWER1_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER1_Y-cartesian[Y_AXIS])
-                       ) + cartesian[Z_AXIS];
-  delta[Y_AXIS] = sqrt(sq(DELTA_DIAGONAL_ROD)
-                       - sq(DELTA_TOWER2_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER2_Y-cartesian[Y_AXIS])
-                       ) + cartesian[Z_AXIS];
-  delta[Z_AXIS] = sqrt(sq(DELTA_DIAGONAL_ROD)
-                       - sq(DELTA_TOWER3_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER3_Y-cartesian[Y_AXIS])
-                       ) + cartesian[Z_AXIS];
-  /*
-  SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
-
-  SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
-  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
-  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
-  */
-}
-#endif
-
 static void prepare_move(const char *cmd)
 {
   clamp_to_software_endstops(destination);
 
   previous_millis_cmd = millis();
-#ifdef DELTA
-  float difference[NUM_AXIS];
-  for (int8_t i=0; i < NUM_AXIS; i++) {
-    difference[i] = destination[i] - current_position[i];
-  }
-  float cartesian_mm = sqrt(sq(difference[X_AXIS]) +
-                            sq(difference[Y_AXIS]) +
-                            sq(difference[Z_AXIS]));
-  if (cartesian_mm < 0.000001) { cartesian_mm = abs(difference[E_AXIS]); }
-  if (cartesian_mm < 0.000001) { return; }
-  float seconds = 6000 * cartesian_mm / feedrate / feedmultiply;
-  int steps = max(1, int(DELTA_SEGMENTS_PER_SECOND * seconds));
-  // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
-  // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
-  // SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
-  for (int s = 1; s <= steps; s++) {
-    float fraction = float(s) / float(steps);
-    for(int8_t i=0; i < NUM_AXIS; i++) {
-      destination[i] = current_position[i] + difference[i] * fraction;
-    }
-    calculate_delta(destination);
-    if (card.sdprinting && (printing_state == PRINT_STATE_RECOVER) && (destination[Z_AXIS] >= recover_height-0.01f))
-    {
-      recover_start_print();
-    }
-    else if (printing_state != PRINT_STATE_RECOVER)
-    {
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
-                       destination[E_AXIS], feedrate*feedmultiply/60/100.0,
-                       active_extruder);
-    }
-  }
-#else
+
   if (card.sdprinting && (printing_state == PRINT_STATE_RECOVER) && (destination[Z_AXIS] >= recover_height-0.01f))
   {
     if (current_position[E_AXIS] != destination[E_AXIS])
@@ -2891,7 +2619,7 @@ static void prepare_move(const char *cmd)
       plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
     }
   }
-#endif
+
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
@@ -2912,48 +2640,6 @@ static void prepare_arc_move(char isclockwise)
   }
   previous_millis_cmd = millis();
 }
-
-#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
-
-#if defined(FAN_PIN)
-  #if CONTROLLERFAN_PIN == FAN_PIN
-    #error "You cannot set CONTROLLERFAN_PIN equal to FAN_PIN"
-  #endif
-#endif
-
-unsigned long lastMotor = 0; //Save the time for when a motor was turned on last
-unsigned long lastMotorCheck = 0;
-
-void controllerFan()
-{
-  if ((millis() - lastMotorCheck) >= 2500) //Not a time critical function, so we only check every 2500ms
-  {
-    lastMotorCheck = millis();
-
-    if(!READ(X_ENABLE_PIN) || !READ(Y_ENABLE_PIN) || !READ(Z_ENABLE_PIN)
-    #if EXTRUDERS > 2
-       || !READ(E2_ENABLE_PIN)
-    #endif
-    #if EXTRUDER > 1
-       || !READ(E1_ENABLE_PIN)
-    #endif
-       || !READ(E0_ENABLE_PIN)) //If any of the drivers are enabled...
-    {
-      lastMotor = millis(); //... set time to NOW so the fan will turn on
-    }
-
-    if ((millis() - lastMotor) >= (CONTROLLERFAN_SECS*1000UL) || lastMotor == 0) //If the last time any driver was enabled, is longer since than CONTROLLERSEC...
-    {
-        analogWrite(CONTROLLERFAN_PIN, 0);
-    }
-    else
-    {
-        // allows digital or PWM fan output to be used (see M42 handling)
-        analogWrite(CONTROLLERFAN_PIN, CONTROLLERFAN_SPEED);
-    }
-  }
-}
-#endif
 
 /**
  * Standard idle routine keeps the machine alive
@@ -3002,9 +2688,7 @@ void manage_inactivity()
   if (READ(SAFETY_TRIGGERED_PIN))
     Stop(STOP_REASON_SAFETY_TRIGGER);
   #endif
-  #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
-    controllerFan(); //Check if fan should be turned on to cool stepper drivers down
-  #endif
+  
   #ifdef EXTRUDER_RUNOUT_PREVENT
     if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 )
     if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)

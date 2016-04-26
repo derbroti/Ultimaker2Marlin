@@ -818,12 +818,6 @@ static void updateTemperaturesFromRawValues()
 
 void tp_init()
 {
-#if (MOTHERBOARD == 80) && ((TEMP_SENSOR_0==-1)||(TEMP_SENSOR_1==-1)||(TEMP_SENSOR_2==-1)||(TEMP_SENSOR_BED==-1))
-  //disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
-  MCUCR=(1<<JTD);
-  MCUCR=(1<<JTD);
-#endif
-
   // Finish init of mult extruder arrays
   for(int e = 0; e < EXTRUDERS; e++) {
     // populate with the first value
@@ -858,25 +852,6 @@ void tp_init()
     #ifdef FAN_SOFT_PWM
     soft_pwm_fan = fanSpeedSoftPwm / 2;
     #endif
-  #endif
-
-  #ifdef HEATER_0_USES_MAX6675
-    #ifndef SDSUPPORT
-      SET_OUTPUT(MAX_SCK_PIN);
-      WRITE(MAX_SCK_PIN,0);
-
-      SET_OUTPUT(MAX_MOSI_PIN);
-      WRITE(MAX_MOSI_PIN,1);
-
-      SET_INPUT(MAX_MISO_PIN);
-      WRITE(MAX_MISO_PIN,1);
-    #else
-	  pinMode(SS_PIN, OUTPUT);
-	  digitalWrite(SS_PIN, HIGH);
-    #endif
-
-    SET_OUTPUT(MAX6675_SS);
-    WRITE(MAX6675_SS,1);
   #endif
 
   // Set analog inputs
