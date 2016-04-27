@@ -652,9 +652,7 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
   if(block->steps_x != 0) enable_x();
   if(block->steps_y != 0) enable_y();
   #endif
-#ifndef Z_LATE_ENABLE
   if(block->steps_z != 0) enable_z();
-#endif
 
 #if EXTRUDERS < 2
   // Enable all

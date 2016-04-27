@@ -392,14 +392,6 @@ ISR(TIMER1_COMPA_vect)
       counter_e = counter_x;
       step_events_completed = 0;
 
-      #ifdef Z_LATE_ENABLE
-        if(current_block->steps_z > 0) {
-          enable_z();
-          OCR1A = 2000; //1ms wait
-          return;
-        }
-      #endif
-
 //      #ifdef ADVANCE
 //      e_steps[current_block->active_extruder] = 0;
 //      #endif
@@ -502,9 +494,6 @@ ISR(TIMER1_COMPA_vect)
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
       WRITE(Z_DIR_PIN,INVERT_Z_DIR);
 
-	  #ifdef Z_DUAL_STEPPER_DRIVERS
-        WRITE(Z2_DIR_PIN,INVERT_Z_DIR);
-      #endif
 
       count_direction[Z_AXIS]=-1;
       CHECK_ENDSTOPS
@@ -522,10 +511,6 @@ ISR(TIMER1_COMPA_vect)
     }
     else { // +direction
       WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
-
-	  #ifdef Z_DUAL_STEPPER_DRIVERS
-        WRITE(Z2_DIR_PIN,!INVERT_Z_DIR);
-      #endif
 
       count_direction[Z_AXIS]=1;
       CHECK_ENDSTOPS
@@ -593,17 +578,9 @@ ISR(TIMER1_COMPA_vect)
       if (counter_z > 0) {
         WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN);
 
-		#ifdef Z_DUAL_STEPPER_DRIVERS
-          WRITE(Z2_STEP_PIN, !INVERT_Z_STEP_PIN);
-        #endif
-
         counter_z -= current_block->step_event_count;
         count_position[Z_AXIS]+=count_direction[Z_AXIS];
         WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
-
-		#ifdef Z_DUAL_STEPPER_DRIVERS
-          WRITE(Z2_STEP_PIN, INVERT_Z_STEP_PIN);
-        #endif
       }
 
       #ifndef ADVANCE
@@ -759,9 +736,6 @@ void st_init()
   #if defined(Z_DIR_PIN) && Z_DIR_PIN > -1
     SET_OUTPUT(Z_DIR_PIN);
 
-    #if defined(Z_DUAL_STEPPER_DRIVERS) && defined(Z2_DIR_PIN) && (Z2_DIR_PIN > -1)
-      SET_OUTPUT(Z2_DIR_PIN);
-    #endif
   #endif
   #if defined(E0_DIR_PIN) && E0_DIR_PIN > -1
     SET_OUTPUT(E0_DIR_PIN);
@@ -787,10 +761,6 @@ void st_init()
     SET_OUTPUT(Z_ENABLE_PIN);
     if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
 
-    #if defined(Z_DUAL_STEPPER_DRIVERS) && defined(Z2_ENABLE_PIN) && (Z2_ENABLE_PIN > -1)
-      SET_OUTPUT(Z2_ENABLE_PIN);
-      if(!Z_ENABLE_ON) WRITE(Z2_ENABLE_PIN,HIGH);
-    #endif
   #endif
   #if defined(E0_ENABLE_PIN) && (E0_ENABLE_PIN > -1)
     SET_OUTPUT(E0_ENABLE_PIN);
@@ -864,10 +834,6 @@ void st_init()
   #if defined(Z_STEP_PIN) && (Z_STEP_PIN > -1)
     SET_OUTPUT(Z_STEP_PIN);
     WRITE(Z_STEP_PIN,INVERT_Z_STEP_PIN);
-    #if defined(Z_DUAL_STEPPER_DRIVERS) && defined(Z2_STEP_PIN) && (Z2_STEP_PIN > -1)
-      SET_OUTPUT(Z2_STEP_PIN);
-      WRITE(Z2_STEP_PIN,INVERT_Z_STEP_PIN);
-    #endif
     disable_z();
   #endif
   #if defined(E0_STEP_PIN) && (E0_STEP_PIN > -1)
@@ -1060,26 +1026,14 @@ void babystep(const uint8_t axis, const bool direction)
     uint8_t old_z_dir_pin= READ(Z_DIR_PIN);  //if dualzstepper, both point to same direction.
     //setup new step
     WRITE(Z_DIR_PIN,(INVERT_Z_DIR)^direction^BABYSTEP_INVERT_Z);
-    #ifdef Z_DUAL_STEPPER_DRIVERS
-      WRITE(Z2_DIR_PIN,(INVERT_Z_DIR)^direction^BABYSTEP_INVERT_Z);
-    #endif
     //perform step
     WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN);
-    #ifdef Z_DUAL_STEPPER_DRIVERS
-      WRITE(Z2_STEP_PIN, !INVERT_Z_STEP_PIN);
-    #endif
     //wait a tiny bit
     delayMicroseconds(2);
     WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
-    #ifdef Z_DUAL_STEPPER_DRIVERS
-      WRITE(Z2_STEP_PIN, INVERT_Z_STEP_PIN);
-    #endif
 
     //get old pin state back.
     WRITE(Z_DIR_PIN,old_z_dir_pin);
-    #ifdef Z_DUAL_STEPPER_DRIVERS
-      WRITE(Z2_DIR_PIN,old_z_dir_pin);
-    #endif
   }
   break;
 #else //DELTA

@@ -7,9 +7,6 @@
 //=============================Thermal Settings  ============================
 //===========================================================================
 
-#ifdef BED_LIMIT_SWITCHING
-  #define BED_HYSTERESIS 2 //only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
-#endif
 #define BED_CHECK_INTERVAL 5000 //ms between checks in bang-bang control
 
 //// Heating sanity check:
@@ -26,26 +23,11 @@
 // if CooldownNoWait is defined M109 will not wait for the cooldown to finish
 #define CooldownNoWait true
 
-#ifdef PIDTEMP
-  // this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
-  // if Kc is choosen well, the additional required power due to increased melting should be compensated.
-  #define PID_ADD_EXTRUSION_RATE
-  #ifdef PID_ADD_EXTRUSION_RATE
-    #define  DEFAULT_Kc (1) //heatingpower=Kc*(e_speed)
-  #endif
-#endif
-
-
-//automatic temperature: The hot end target temperature is calculated by all the buffered lines of gcode.
-//The maximum buffered steps/sec of the extruder motor are called "se".
-//You enter the autotemp mode by a M109 S<mintemp> T<maxtemp> F<factor>
-// the target temperature is set to mintemp+factor*se[steps/sec] and limited by mintemp and maxtemp
-// you exit the value by any M109 without F*
-// Also, if the temperature is set to a value <mintemp, it is not changed by autotemp.
-// on an ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
-//#define AUTOTEMP
-#ifdef AUTOTEMP
-  #define AUTOTEMP_OLDWEIGHT 0.98
+// this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
+// if Kc is choosen well, the additional required power due to increased melting should be compensated.
+#define PID_ADD_EXTRUSION_RATE
+#ifdef PID_ADD_EXTRUSION_RATE
+  #define  DEFAULT_Kc (1) //heatingpower=Kc*(e_speed)
 #endif
 
 //  extruder run-out prevention.
@@ -96,11 +78,7 @@
 
 //// AUTOSET LOCATIONS OF LIMIT SWITCHES
 //// Added by ZetaPhoenix 09-15-2012
-#ifdef MANUAL_HOME_POSITIONS  // Use manual limit switch locations
-  #define X_HOME_POS MANUAL_X_HOME_POS
-  #define Y_HOME_POS MANUAL_Y_HOME_POS
-  #define Z_HOME_POS MANUAL_Z_HOME_POS
-#else //Set min/max homing switch positions based upon homing direction and min/max travel limits
+//Set min/max homing switch positions based upon homing direction and min/max travel limits
   //X axis
   #if X_HOME_DIR == -1
       #define X_HOME_POS X_MIN_POS
@@ -121,23 +99,8 @@
   #else
     #define Z_HOME_POS Z_MAX_POS
   #endif //Z_HOME_DIR == -1
-#endif //End auto min/max positions
 //END AUTOSET LOCATIONS OF LIMIT SWITCHES -ZP
 
-
-//#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
-
-// A single Z stepper driver is usually used to drive 2 stepper motors.
-// Uncomment this define to utilize a separate stepper driver for each Z axis motor.
-// Only a few motherboards support this, like RAMPS, which have dual extruder support (the 2nd, often unused, extruder driver is used
-// to control the 2nd Z axis stepper motor). The pins are currently only defined for a RAMPS motherboards.
-// On a RAMPS (or other 5 driver) motherboard, using this feature will limit you to using 1 extruder.
-//#define Z_DUAL_STEPPER_DRIVERS
-
-#ifdef Z_DUAL_STEPPER_DRIVERS
-  #undef EXTRUDERS
-  #define EXTRUDERS 1
-#endif
 
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 7
