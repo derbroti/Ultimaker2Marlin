@@ -50,7 +50,6 @@ Features:
 *   Updated sdcardlib
 *   Heater power reporting. Useful for PID monitoring.
 *   PID tuning
-*   CoreXY kinematics (www.corexy.com/theory.html)
 *   Configurable serial port to support connection of wireless adaptors.
 *   Automatic operation of extruder/cold-end cooling fans based on nozzle temperature
 *   RC Servo Support, specify angle or duration for continuous rotation servos.
