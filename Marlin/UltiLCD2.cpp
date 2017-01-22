@@ -26,7 +26,7 @@ uint8_t led_brightness_level = 100;
 uint8_t led_mode = LED_MODE_ALWAYS_ON;
 float dsp_temperature[EXTRUDERS] = { 20.0 };
 float dsp_temperature_bed = 20.0;
-char lcd_status_message[LCD_CHARS_PER_LINE+1];
+char lcd_status_message[LCD_CHARS_PER_LINE+1] = {0};
 
 //#define SPECIAL_STARTUP
 #define MILLIS_GLOW  (1000L / 40L)
@@ -59,7 +59,7 @@ void lcd_init()
 #endif // EXTRUDERS
 
     // initialize menu stack and show start animation
-    *lcd_status_message = 0;
+    lcd_clearstatus();
     menu.init_menu(menu_t(lcd_menu_main, MAIN_MENU_ITEM_POS(0)), false);
     menu.add_menu(menu_t(lcd_menu_startup), false);
     analogWrite(LED_PIN, 0);
@@ -139,28 +139,34 @@ void lcd_update()
         LED_GLOW_ERROR
         lcd_lib_update_screen();
     }
-    else if ((is_command_queued() && serialCmd) || (millis() - lastSerialCommandTime < SERIAL_CONTROL_TIMEOUT))
-    {
-        if (!(sleep_state & SLEEP_SERIAL_SCREEN))
-        {
-            // show usb printing screen during incoming serial communication
-            menu.add_menu(menu_t(lcd_menu_printing_tg, MAIN_MENU_ITEM_POS(1)), false);
-            sleep_state |= SLEEP_SERIAL_SCREEN;
-        }
-        menu.processEvents();
-    }
     else
     {
-        if (sleep_state & SLEEP_SERIAL_SCREEN)
+        if (!card.sdprinting())
         {
-            // end of serial communication
-            sleep_state &= ~SLEEP_SERIAL_SCREEN;
-            menu.removeMenu(lcd_menu_printing_tg);
+            if (HAS_SERIAL_CMD)
+            {
+                if (!(sleep_state & SLEEP_SERIAL_SCREEN))
+                {
+                    // show usb printing screen during incoming serial communication
+                    menu.add_menu(menu_t(lcd_menu_printing_tg, MAIN_MENU_ITEM_POS(1)), false);
+                    sleep_state |= SLEEP_SERIAL_SCREEN;
+                }
+            }
+            else if (sleep_state & SLEEP_SERIAL_SCREEN)
+            {
+                // hide usb printing screen
+                sleep_state &= ~SLEEP_SERIAL_SCREEN;
+                menu.removeMenu(lcd_menu_printing_tg);
+            }
         }
-        // serialScreenShown = false;
         menu.processEvents();
-        if (postMenuCheck) postMenuCheck();
     }
+
+    if (postMenuCheck && (printing_state != PRINT_STATE_ABORT))
+    {
+        postMenuCheck();
+    }
+
     // refresh the displayed temperatures
     for(uint8_t e=0; e<EXTRUDERS; ++e)
     {
@@ -263,7 +269,14 @@ void lcd_buttons_update()
 
 void lcd_setstatus(const char* message)
 {
-    strncpy(lcd_status_message, message, LCD_CHARS_PER_LINE);
+    if (message)
+    {
+        strncpy(lcd_status_message, message, LCD_CHARS_PER_LINE);
+    }
+    else
+    {
+        *lcd_status_message = '\0';
+    }
 }
 
 void lcd_clearstatus()

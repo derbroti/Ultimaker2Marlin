@@ -236,20 +236,7 @@ static void lcd_preferences_details(uint8_t nr)
             strcpy_P(c, PSTR("off"));
         }
     }
-//#if TEMP_SENSOR_BED != 0
-//    else if (nr == 7)
-//    {
-//        if (pidTempBed())
-//        {
-//            strcpy_P(buffer, PSTR("PID controlled"));
-//        }
-//        else
-//        {
-//            strcpy_P(buffer, PSTR("Off (bang-bang mode)"));
-//        }
-//    }
-//#endif
-    else if (nr == 10+BED_MENU_OFFSET)
+    else if (nr == 11)
     {
         strcpy_P(buffer, PSTR(STRING_CONFIG_H_AUTHOR));
     }
@@ -275,22 +262,6 @@ void homeAll()
     enquecommand_P(PSTR("G28"));
 }
 
-static void lcd_menu_maintenance_advanced_return()
-{
-    doCooldown();
-    homeHead();
-    enquecommand_P(PSTR("M84 X Y E"));
-    menu.return_to_previous(false);
-}
-
-static void move_head_to_front()
-{
-    char buffer[32] = {0};
-    homeHead();
-    sprintf_P(buffer, PSTR("G1 F%i X%i Y%i"), int(homing_feedrate[0]), int(AXIS_CENTER_POS(X_AXIS)), int(min_pos[Y_AXIS])+5);
-    enquecommand(buffer);
-}
-
 static void start_nozzle_heatup()
 {
 #if EXTRUDERS > 1
@@ -306,8 +277,8 @@ static void start_insert_material()
     // remove nozzle selection menu
     menu.return_to_previous();
 #endif // EXTRUDERS
-    menu.add_menu(menu_t(lcd_menu_maintenance_advanced_return));
-    menu.add_menu(menu_t(move_head_to_front, lcd_menu_insert_material_preheat, NULL));
+    lcd_material_change_init(false);
+    menu.add_menu(menu_t(lcd_menu_insert_material_preheat));
 }
 
 void start_move_material()
@@ -317,16 +288,18 @@ void start_move_material()
     menu.return_to_previous();
 #endif // EXTRUDERS
     set_extrude_min_temp(0);
-    enquecommand_P(PSTR("G92 E0"));
+    // reset e-position
+    current_position[E_AXIS] = 0;
+    plan_set_e_position(0);
+    // heatup nozzle
+    target_temperature[active_extruder] = material[active_extruder].temperature[0];
+
     if (ui_mode & UI_MODE_EXPERT)
     {
-        if (current_temperature[active_extruder] < (material[active_extruder].temperature[0] / 2))
-        {
-            target_temperature[active_extruder] = material[active_extruder].temperature[0];
-        }
         menu.add_menu(menu_t(lcd_menu_expert_extrude));
-    }else{
-        target_temperature[active_extruder] = material[active_extruder].temperature[0];
+    }
+    else
+    {
         menu.add_menu(menu_t(lcd_menu_maintenance_extrude, MAIN_MENU_ITEM_POS(0)));
     }
 }
@@ -606,6 +579,8 @@ static void lcd_motion_item(uint8_t nr, uint8_t offsetY, uint8_t flags)
         strcpy_P(buffer, PSTR("Motor Current"));
     else if (nr == 4)
         strcpy_P(buffer, PSTR("Axis steps/mm"));
+    else if (nr == 5)
+        strcpy_P(buffer, PSTR("Invert axis"));
     else
        strcpy_P(buffer, PSTR("???"));
 
@@ -614,7 +589,7 @@ static void lcd_motion_item(uint8_t nr, uint8_t offsetY, uint8_t flags)
 
 static void lcd_menu_maintenance_motion()
 {
-    lcd_scroll_menu(PSTR("MOTION"), 5, lcd_motion_item, NULL);
+    lcd_scroll_menu(PSTR("MOTION"), 6, lcd_motion_item, NULL);
     if (lcd_lib_button_pressed)
     {
         if (IS_SELECTED_SCROLL(0))
@@ -627,6 +602,8 @@ static void lcd_menu_maintenance_motion()
             menu.add_menu(menu_t(lcd_menu_motorcurrent, MAIN_MENU_ITEM_POS(1)));
         else if (IS_SELECTED_SCROLL(4))
             menu.add_menu(menu_t(lcd_menu_steps, MAIN_MENU_ITEM_POS(1)));
+        else if (IS_SELECTED_SCROLL(5))
+            menu.add_menu(menu_t(lcd_menu_axisdirection, MAIN_MENU_ITEM_POS(1)));
     }
     lcd_lib_update_screen();
 }
