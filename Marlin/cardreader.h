@@ -6,11 +6,7 @@
 #define MAX_DIR_DEPTH 10
 
 #if (SDCARDDETECT > -1)
-# ifdef SDCARDDETECTINVERTED
-#  define IS_SD_INSERTED (READ(SDCARDDETECT)!=0)
-# else
-#  define IS_SD_INSERTED (READ(SDCARDDETECT)==0)
-# endif //SDCARDTETECTINVERTED
+# define IS_SD_INSERTED ((READ(SDCARDDETECT)==0) && (!forceUndetected))
 #else
 //If we don't have a card detect line, always assume the card is inserted
 # define IS_SD_INSERTED true
@@ -34,6 +30,7 @@ class CardReader
 public:
   CardReader();
 
+  void preInit();
   void initsd();
   void write_command(char *buf);
   bool write_string(char* buffer);
@@ -59,7 +56,10 @@ public:
   void updir();
   void setroot();
 
-
+  void switchAccess(int s);
+  FORCE_INLINE void power(bool b) { WRITE(SDPOWER, (b)?HIGH:LOW); }
+  FORCE_INLINE void forceUndetect(bool b) { forceUndetected = b; }
+  
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
   FORCE_INLINE bool eof() { return sdpos>=filesize ;}
   FORCE_INLINE int16_t get() {  sdpos = file.curPosition();return (int16_t)file.read();}
@@ -112,7 +112,8 @@ public:
 private:
   char filename[13];
   char longFilename[LONG_FILENAME_LENGTH];
-
+  
+  bool forceUndetected;
   uint8_t state;
   SdFile root,*curDir,workDir,workDirParents[MAX_DIR_DEPTH];
   uint8_t workDirDepth;

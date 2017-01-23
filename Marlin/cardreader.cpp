@@ -15,11 +15,23 @@ CardReader::CardReader() :
  , filesize(0)
  , autostart_atmillis(0)
  , sdpos(0)
+ , forceUndetected(false)
 {
-  //power to SD reader
-  #if SDPOWER > -1
+
+}
+
+void CardReader::preInit(void)
+{
+  // power to SD reader
+  #if (SDPOWER > -1)
     SET_OUTPUT(SDPOWER);
-    WRITE(SDPOWER,HIGH);
+    WRITE(SDPOWER, HIGH);
+    
+    SET_OUTPUT(SD_SWITCH_UM);
+    WRITE(SD_SWITCH_UM, HIGH);
+    
+    SET_OUTPUT(SD_SWITCH_USB);
+    WRITE(SD_SWITCH_USB, LOW);
   #endif //SDPOWER
 
   autostart_atmillis=millis()+5000;
@@ -176,6 +188,28 @@ void CardReader::initsd()
   }
   */
 
+}
+
+//S := 0 - Ultimaker, 1 - USB reader, 2 - nobody
+void CardReader::switchAccess(int s)
+{
+    switch(s)
+    {
+        case 0: //ultimaker
+            WRITE(SD_SWITCH_USB, LOW);
+            WRITE(SD_SWITCH_UM, HIGH);
+            break;
+        case 1: // usb reader
+            WRITE(SD_SWITCH_USB, HIGH);
+            WRITE(SD_SWITCH_UM,   LOW);
+            break;
+        case 2: // nobody
+            WRITE(SD_SWITCH_USB, LOW);
+            WRITE(SD_SWITCH_UM,  LOW);
+            break;
+        default:
+            return;
+    }
 }
 
 void CardReader::setroot()

@@ -66,9 +66,10 @@
 #define E1_DIR_PIN                  47  // PL2
 #define E1_ENABLE_PIN               48  // PL1
 
-#define SDPOWER                     -1
+#define SDPOWER                     14
+#define SD_SWITCH_UM                 6
+#define SD_SWITCH_USB               15
 #define SDSS                        53  // PB0 (?)
-#define MAX6675_SS                  13  // A13 or D13 (?) => PK5 or PB7
 #define LED_PIN                     8   // PH5
 #define FAN_PIN                     7   // PH4
 #define PS_ON_PIN                   24  // PA2 (?)

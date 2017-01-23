@@ -105,9 +105,10 @@ void lcd_lib_init()
     SET_OUTPUT(I2C_SCL_PIN);
 
     //Set unused pins in the 10 pin connector to GND to improve shielding of the cable.
-    SET_OUTPUT(LCD_PINS_D4); WRITE(LCD_PINS_D4, 0); //RXD3/PJ1
-    SET_OUTPUT(LCD_PINS_ENABLE); WRITE(LCD_PINS_ENABLE, 0); //TXD3/PJ0
-    SET_OUTPUT(LCD_PINS_D7); WRITE(LCD_PINS_D7, 0); //PH3
+    //fucking bullshit why would you do this here? those pins are not related to the display
+    //SET_OUTPUT(LCD_PINS_D4); WRITE(LCD_PINS_D4, 0); //RXD3/PJ1
+    //SET_OUTPUT(LCD_PINS_ENABLE); WRITE(LCD_PINS_ENABLE, 0); //TXD3/PJ0
+    //SET_OUTPUT(LCD_PINS_D7); WRITE(LCD_PINS_D7, 0); //PH3
 
     //Set the beeper as output.
     SET_OUTPUT(BEEPER);

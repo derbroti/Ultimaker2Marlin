@@ -150,8 +150,11 @@
 // M908 - Control digital trimpot directly.
 // M350 - Set microstepping mode.
 // M351 - Toggle MS1 MS2 pins directly.
+// M921 - toggle SD card power S:= 1 - card on (default, when ommited), 0 card off
+// M922 - force SD card undetect - overwrites carddetect pin for disabling the card S:= 0 - no force (default when ommited), 1 - force undetect
 // M923 - Select file and start printing directly (can be used from other SD file)
 // M928 - Start SD logging (M928 filename.g) - ended by M29
+// M942 - select who can access the SD interface parameter: S := 0 - Ultimaker, 1 - USB reader, 2 - nobody
 // M999 - Restart after being stopped by error
 
 //Stepper Movement Variables
@@ -507,6 +510,9 @@ void setup()
 {
   setup_killpin();
   setup_powerhold();
+  
+  card.preInit();
+  
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
@@ -539,7 +545,7 @@ void setup()
   SERIAL_ECHOPGM(MSG_PLANNER_BUFFER_BYTES);
   SERIAL_ECHOLN((int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
   serialCmd = 0;
-
+  
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
   lifetime_stats_init();
@@ -548,6 +554,7 @@ void setup()
   filament_sensor_init(); // Initialize filament sensor
   watchdog_init();
   st_init();    // Initialize stepper, this enables interrupts!
+  
   setup_photpin();
   servo_init();
 
@@ -1548,6 +1555,24 @@ void process_command(const char *strCmd, bool sendAck)
         card.removeFile(strchr_pointer);
       }
       break;
+    case 921: // M921 - toggle SD card power S:= 1 - card on (default, when ommited), 0 card off
+      {
+        int power = 1;
+        if (code_seen(strCmd, 'S')) {
+          power = code_value();
+        }
+        card.power((power == 1 || power == 0)?power:1);
+      }
+      break;
+    case 922: // M922 - force SD card undetect - overwrites carddetect pin for disabling the card S:= 0 - no force (default when ommited), 1 - force undetect
+      {
+        int undetect = 0;
+        if (code_seen(strCmd, 'S')) {
+          undetect = code_value();
+        }
+        card.forceUndetect((undetect == 0 || undetect == 1)?undetect:0);
+      }
+      break;
     case 923: //M923 - Select file and start printing
       strchr_pointer += 5;
       truncate_checksum(strchr_pointer);
@@ -1564,25 +1589,34 @@ void process_command(const char *strCmd, bool sendAck)
       }
       card.openLogFile(strchr_pointer);
       break;
-
+    case 942: // M942 - select who can access the SD interface parameter: S := 0 - Ultimaker (default when ommiting S), 1 - USB reader, 2 - nobody
+      {
+        int access = 0;
+        if (code_seen(strCmd, 'S')) {
+          access = code_value();
+        }
+        card.switchAccess((access >= 0 && access <= 2)?access:0);
+      }
+      break;
+      
 #endif //SDSUPPORT
 
     case 31: //M31 take time since the start of the SD print or an M109 command
       {
-      stoptime=millis();
-      char time[30];
-      unsigned long t=(stoptime-starttime)/1000;
-      int sec,min;
-      min=t/60;
-      sec=t%60;
-      sprintf_P(time, PSTR("%i min, %i sec"), min, sec);
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLN(time);
-      lcd_setstatus(time);
-      autotempShutdown();
+        stoptime=millis();
+        char time[30];
+        unsigned long t=(stoptime-starttime)/1000;
+        int sec,min;
+        min=t/60;
+        sec=t%60;
+        sprintf_P(time, PSTR("%i min, %i sec"), min, sec);
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLN(time);
+        lcd_setstatus(time);
+        autotempShutdown();
       }
       break;
-    case 42: //M42 -Change pin status via gcode
+    case 42: //M42 - Change pin status via gcode
       if (code_seen(strCmd, 'S'))
       {
         int pin_status = code_value();

@@ -136,7 +136,7 @@ uint32_t blocking_enc;
 uint8_t lastEncoderBits;
 int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
 uint32_t encoderPosition;
-#if (SDCARDDETECT > 0)
+#if (SDCARDDETECT > -1)
 bool lcd_oldcardstatus;
 #endif
 #endif//ULTIPANEL
@@ -855,7 +855,7 @@ void lcd_init()
     WRITE(SHIFT_LD,HIGH);
     WRITE(SHIFT_EN,LOW);
 #endif//!NEWPANEL
-#if (SDCARDDETECT > 0)
+#if (SDCARDDETECT > -1)
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
 #endif//(SDCARDDETECT > 0)
@@ -875,7 +875,7 @@ void lcd_update()
     buttons |= lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
     #endif
 
-    #if (SDCARDDETECT > 0)
+    #if (SDCARDDETECT > -1)
     if((IS_SD_INSERTED != lcd_oldcardstatus))
     {
         lcdDrawUpdate = 2;
