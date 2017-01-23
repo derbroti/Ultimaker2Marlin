@@ -1,0 +1,21 @@
+switch from UM to USB-reader
+----------------------------
+
+M922 S1 ; force card undetect
+M942 S2 ; disable data access
+M921 S0 ; unpower card
+<wait a little>
+M921    ; powerup card
+M942 S1 ; select USB reader
+
+
+switch from USB-reader to UM
+----------------------------
+
+M942 S2 ; disable data access
+M921 S0 ; unpower card
+<wait a little>
+M921    ; powerup card
+M942    ; select UM
+M922    ; disable force undetect
+
